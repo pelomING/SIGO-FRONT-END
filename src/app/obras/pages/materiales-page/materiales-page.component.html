@@ -1,0 +1,121 @@
+<p-card header="Listado Materiales Informados y Recepcionados por Obras">
+    <div class="card">
+        <p-toast></p-toast>
+        <p-toolbar styleClass="mb-4 gap-2">
+            <ng-template pTemplate="left">
+
+            </ng-template>
+            <ng-template pTemplate="right">
+                <button pButton pRipple label="Export" icon="pi pi-upload" class="p-button-help"
+                    (click)="dt.exportCSV()"></button>
+            </ng-template>
+        </p-toolbar>
+
+        <p-table #dt [value]="obras" [columns]="cols" [rows]="10" [paginator]="true"
+            [globalFilterFields]="['nombre_obra', 'codigo_obra', 'numero_ot', 'monto','estado.nombre']"
+            [tableStyle]="{ 'min-width': '75rem' }" [(selection)]="selectedProducts" [rowHover]="true" dataKey="id"
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+            [showCurrentPageReport]="true">
+
+            <ng-template pTemplate="caption">
+                <div class="flex align-items-center justify-content-between">
+                    <h4 class="m-0">Obras en Curso</h4>
+                    <span class="p-input-icon-left">
+                        <i class="pi pi-search"></i>
+                        <input pInputText type="text" (input)="dt.filterGlobal($event.target.value, 'contains')"
+                            placeholder="Search..." />
+                    </span>
+                </div>
+            </ng-template>
+            <ng-template pTemplate="header">
+                <tr>
+                    <th pSortableColumn="nombre_obra" style="min-width:10rem">Nombre Obra <p-sortIcon
+                            field="nombre_obra"></p-sortIcon></th>
+                    <th pSortableColumn="codigo_obra" style="min-width:10rem">Codigo <p-sortIcon
+                            field="codigo_obra"></p-sortIcon></th>
+                    <th pSortableColumn="numero_ot">N° OT <p-sortIcon field="numero_ot"></p-sortIcon></th>
+                    <th pSortableColumn="monto" style="min-width:10rem">Cantiadad <p-sortIcon
+                            field="monto"></p-sortIcon></th>
+                    <th pSortableColumn="estado.nombre" style="min-width:10rem">Estado <p-sortIcon
+                            field="estado.nombre"></p-sortIcon></th>
+                    <th></th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-obra>
+                <tr>
+                    <td>{{ obra.nombre_obra }}</td>
+                    <td>{{ obra.codigo_obra }}</td>
+                    <td>{{ obra.numero_ot }}</td>
+                    <td>{{ obra.monto }}</td>
+                    <td>
+                        <p-tag icon="pi pi-star" [value]="obra.estado.nombre" [severity]="getSeverity(obra.estado.nombre)"></p-tag>
+                    </td>
+                    <td>
+                        <button pButton pRipple icon="pi pi-plus" class="p-button-rounded p-button-help mr-2" (click)="editProduct(obra)"></button>
+                        <button pButton pRipple icon="pi pi-cloud-upload" class="p-button-rounded p-button-warning mr-2"></button>
+                        <!-- <button pButton pRipple icon="pi pi-check-circle" class="p-button-rounded p-button-success mr-2"></button>
+                        <button pButton pRipple icon="pi pi-cog" class="p-button-rounded p-button-danger mr-2"></button> -->
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="summary">
+                <div class="flex align-items-center justify-content-between">In total there are {{ obras ?
+                    obras.length : 0 }}
+                    obras.</div>
+            </ng-template>
+        </p-table>
+    </div>
+
+
+    <p-dialog [(visible)]="formObraDialog" [style]="{ width: '1000px' , height: '655px' }" header="Agregar Materiales Informados" [modal]="true" styleClass="p-fluid">
+ 
+        <ng-template pTemplate="content">
+
+            <form [formGroup]="obraForm">
+
+                <div class="card">
+
+                    <p-fileUpload mode="basic" accept="image/*" [maxFileSize]="1000000" label="Importar Excel" chooseLabel="Import" class="mr-2 inline-block"></p-fileUpload>
+
+
+                    <p-fileUpload
+                        mode="basic"
+                        accept=".xlsx, .xls"
+                        [maxFileSize]="1000000"
+                        label="Importar Excel"
+                        (onUpload)="onFileUpload($event)"
+                        ></p-fileUpload>
+
+
+                </div>
+
+
+                <div class="grid flex align-items-end" style="height:210px;margin-top:2%;">
+                    <div class="col-4"></div>
+
+                    <div class="col-4">
+                        <button *ngIf="mostrarGuardar" pButton pRipple label="Guardar" (click)="onGuardarClick()"
+                            visible="false" [loading]="loading" [disabled]="obraForm.invalid"
+                            class="p-button-rounded p-button-outlined p-mt-10"></button>
+
+                        <button *ngIf="mostrarActualizar" pButton pRipple label="Actualizar"
+                            (click)="onActualizarClick()" [loading]="loading" [disabled]="obraForm.invalid"
+                            class="p-button-rounded p-button-success p-button-outlined p-mt-10"></button>
+                    </div>
+                    <div class="col-4"></div>
+                </div>
+
+            </form>
+
+        </ng-template>
+
+        <ng-template pTemplate="footer">
+            <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text"
+                (click)="hideDialog()"></button>
+        </ng-template>
+
+    </p-dialog>
+
+    <p-confirmDialog [style]="{ width: '650px' }"></p-confirmDialog>
+
+</p-card>

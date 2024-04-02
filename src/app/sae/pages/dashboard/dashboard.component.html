@@ -1,0 +1,98 @@
+<div class="grid">
+
+    <div class="col-12 lg:col-6 xl:col-6">
+
+        <div class="card" *ngIf="chartData_Norte">
+            <div class="card flex flex-column align-items-center">
+                <p-chart type="line" [data]="chartData_Norte" [options]="chartOptions_Norte" style="width:100%;height:100%;" ></p-chart>
+            </div>
+        </div>
+        <div *ngIf="!chartData_Norte">
+            <p>Cargando...</p>
+        </div>
+
+    </div>
+
+    <div class="col-12 lg:col-6 xl:col-6">
+
+        <div class="card" *ngIf="chartData_Sur">
+            <div class="card flex flex-column align-items-center">
+                <p-chart type="line" [data]="chartData_Sur" [options]="chartOptions_Sur" style="width:100%;height:100%;" ></p-chart>
+            </div>
+        </div>
+        <div *ngIf="!chartData_Sur">
+            <p>Cargando...</p>
+        </div>
+
+    </div>
+
+</div>
+
+<div class="grid">
+
+    <div class="col-12 lg:col-6 xl:col-6">
+
+        <h5>Detalle de Eventos -- Maule Norte</h5>
+
+        <p-table [value]="TablaDataMauleNorte" [responsive]="true">
+            <ng-template pTemplate="header">
+                <tr>
+                  <th>MES</th>
+                  <th>DOMICILIARIOS</th>
+                  <th>SSEE y/o BT</th>
+                  <th>LINEA MT</th>
+                  <th>REPARA LINEAS</th>
+                  <th>TOTAL</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-dato>
+                <tr>
+                  <td>{{ dato.nombre_mes }}</td>
+                  <td style="text-align:center;" >{{ dato.cantidad_domic }}</td>
+                  <td style="text-align:center;" >{{ dato.cantidad_sseeb }}</td>
+                  <td style="text-align:center;" >{{ dato.cantidad_linmt }}</td>
+                  <td style="text-align:center;" >{{ dato.cantidad_repar }}</td>
+                  <td style="text-align:center;" >{{ dato.cantidad_domic + dato.cantidad_sseeb + dato.cantidad_linmt + dato.cantidad_repar }}</td>
+                </tr>
+            </ng-template>
+        </p-table>
+
+    </div>
+
+    <div class="col-12 lg:col-6 xl:col-6">
+
+        <h5>Detalle de Eventos -- Maule Sur</h5>
+
+        <p-table [value]="TablaDataMauleSur" [responsive]="true">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>MES</th>
+                    <th>DOMICILIARIOS</th>
+                    <th>SSEE y/o BT</th>
+                    <th>LINEA MT</th>
+                    <th>REPARA LINEAS</th>
+                    <th>TOTAL</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-dato>
+                <tr>
+                  <td>{{ dato.nombre_mes }}</td>
+                  <td style="text-align:center;" >{{ dato.cantidad_domic }}</td>
+                  <td style="text-align:center;" >{{ dato.cantidad_sseeb }}</td>
+                  <td style="text-align:center;" >{{ dato.cantidad_linmt }}</td>
+                  <td style="text-align:center;" >{{ dato.cantidad_repar }}</td>
+                  <td style="text-align:center;" >{{ dato.cantidad_domic + dato.cantidad_sseeb + dato.cantidad_linmt + dato.cantidad_repar }}</td>
+                </tr>
+            </ng-template>
+        </p-table>
+
+    </div>
+
+</div>
+
+
+
+
+
+
+

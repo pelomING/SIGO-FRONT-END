@@ -1,0 +1,613 @@
+<p-card header="Historico Estado de Pago por la Obra ID : {{obra?.codigo_obra}} ">
+
+    <div class="card">  
+        <p-toast></p-toast>
+
+
+        <p-toolbar styleClass="mb-4 gap-2">
+
+            <ng-template pTemplate="left">
+
+                <button pButton pRipple (click)="goBack()" label="Volver" icon="pi pi-arrow-left"
+                    class="p-button-danger mr-2"></button>
+
+            </ng-template>
+
+            <ng-template pTemplate="right">
+
+                <button pButton pRipple label="Selecionar Reportes Diarios" icon="pi pi-plus" class="p-button-success mr-2"
+                    (click)="openSelecionarReportesDiariosPorObra(obra)"></button>
+
+            </ng-template>
+        </p-toolbar>
+
+
+
+        <p-table #dt [value]="listaestadospago" selectionMode="single" [columns]="cols" [rows]="10" [paginator]="true"
+        styleClass="p-datatable-gridlines p-datatable-striped p-datatable-header"
+        [globalFilterFields]="['id', 'id_obra', 'fecha_reporte', 'jefe_faena','sdi']"
+        [tableStyle]="{ 'min-width': '75rem' }" [(selection)]="selectedProducts" [rowHover]="true" dataKey="id"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+        [showCurrentPageReport]="true">
+
+        <ng-template pTemplate="caption">
+            <div class="flex align-items-center justify-content-between">
+                <h4 class="m-0">Listado de Estados de Pago</h4>
+                <span class="p-input-icon-left">
+                    <i class="pi pi-search"></i>
+                    <input pInputText type="text" (input)="dt.filterGlobal($event.target.value, 'contains')"
+                        placeholder="Search..." />
+                </span>
+            </div>
+        </ng-template>
+        <ng-template pTemplate="header">
+            <tr>
+                <th pSortableColumn="id" style="min-width:10rem">
+                    Código Pelom 
+                    <p-sortIcon field="id"></p-sortIcon>
+                </th>
+
+                <th pSortableColumn="codigo_obra" style="min-width:10rem">
+                    Código Obra
+                    <p-sortIcon field="codigo_obra"></p-sortIcon>
+                </th>
+
+                <th pSortableColumn="fecha_reporte">
+                    Fecha Asignación
+                    <p-sortIcon field="fecha_reporte"></p-sortIcon>
+                </th>
+
+                <th pSortableColumn="jefe_faena" style="min-width:10rem">
+                    Tipo Trabajo
+                    <p-sortIcon field="jefe_faena"></p-sortIcon>
+                </th>
+
+                <th pSortableColumn="sdi" style="min-width:10rem">
+                    Segmento
+                    <p-sortIcon field="sdi"></p-sortIcon>
+                </th>
+
+                <th pSortableColumn="sdi" style="min-width:10rem">
+                    Solicitado Por
+                    <p-sortIcon field="sdi"></p-sortIcon>
+                </th>
+
+                <th pSortableColumn="sdi" style="min-width:10rem">
+                    Supervisor Pelom
+                    <p-sortIcon field="sdi"></p-sortIcon>
+                </th>
+
+                <th>PDF</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-estadopago>
+            <tr [pSelectableRow]="estadopago" > 
+                <td>{{ estadopago.codigo_pelom }}</td>
+                <td>{{ estadopago.codigo_obra }}</td>
+                <td>{{ estadopago.fecha_asignacion }}</td>
+                <td>{{ estadopago.tipo_trabajo.descripcion }}</td>
+                <td>{{ estadopago.segmento.nombre }}</td>
+                <td>{{ estadopago.solicitado_por }}</td>
+                <td>{{ estadopago.jefe_faena.nombre }}</td>
+                <td style="text-align: center;">
+                    
+                    <button styleSheetFile="assets/pdf_estado_pago_obras.css" pButton pRipple icon="pi pi-file-pdf" class="p-button-rounded p-button-success mr-2"
+                        (click)="openReporteEstadoPago(estadopago)"></button>
+
+                </td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="summary">
+            <div class="flex align-items-center justify-content-between">In total there are {{ listaestadospago
+                ?
+                listaestadospago.length : 0 }}
+                Estados de Pago.</div>
+        </ng-template>
+    </p-table>
+
+    </div>
+</p-card>
+
+
+<p-dialog header="Estado de Pago" [style]="{ width: '90%', height: '90%' }" [(visible)]="display"
+    (onHide)="hideDialog()" (onShow)="onDialogShow()">
+
+    <p-toolbar styleClass="mb-4">
+        <ng-template pTemplate="left">
+        </ng-template>
+        <ng-template pTemplate="right">
+
+            <button download="ESTADO_DE_PAGO_SERVICIO_DE_ATENCIÓN_DE_EMERGENCIAS.pdf" 
+                printTitle="Estado de Pago" 
+                styleSheetFile="assets/pdf_estado_pago_obras.css" 
+                printSectionId="pdfContainer"
+                ngxPrint pButton pRipple 
+                label="Generar PDF" 
+                icon="pi pi-file-pdf" 
+                class="p-button-help">
+            </button>
+
+        </ng-template>
+    </p-toolbar>
+
+    <ng-template pTemplate="content">
+
+        <div class="card">
+            <div class="grid">
+
+                <div class="col-fixed" style="width:10%">
+                    <div class="box">
+
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="box">
+
+                        <div id="pdfContainer" class="card">
+
+                            <div class="grid grid1">
+                                <div class="col col1 logo-col">
+                                    <img src="assets/layout/images/logo_pelom_new.png">
+                                </div>
+                                <div class="col col1 date-col">
+                                    {{ obtenerFechaActualConDiaYCiudad() }}
+                                </div>
+                            </div>
+
+
+                            <div class="titu1">
+                                <p style="text-align:center;color:black;">
+                                    Estado de Pago - FINAL
+                                </p>
+                                <p style="text-align:center;color:black;" >
+                                    OBRAS DE MANTENIMIENTO Y CONSTRUCCIÓN : <strong> {{obra?.codigo_obra}} </strong>    
+                                </p>
+                            </div>
+
+                            <hr>
+                            
+                            <div class="grid grid3">
+
+                                <div class="col-fixed" style="width:55px">
+                                </div>
+
+                                <div class="col">
+                                        
+                                    <table  border="1" class="tabla_cabecera">
+                                    <tr>
+                                    <td>
+
+                                        <table class="tabla_cabecera" style="font-size:9px;" >
+                                            <tr>
+                                                <td style="width:30%;" ><strong>Cliente:</strong></td>
+                                                <td *ngIf="NUEVOENCABEZADO.cliente">{{ NUEVOENCABEZADO?.cliente?.nombre }}</td>
+                                                <td *ngIf="!(NUEVOENCABEZADO.cliente)">sin dato</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Fecha de Asignación:</strong></td>
+                                                <td *ngIf="NUEVOENCABEZADO.fecha_asignacion">{{ NUEVOENCABEZADO?.fecha_asignacion }}</td>
+                                                <td *ngIf="!(NUEVOENCABEZADO.fecha_asignacion)">sin dato</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Tipo de trabajo:</strong></td>
+                                                <td *ngIf="NUEVOENCABEZADO.tipo_trabajo">{{ NUEVOENCABEZADO?.tipo_trabajo?.descripcion }}</td>
+                                                <td *ngIf="!(NUEVOENCABEZADO.tipo_trabajo)">sin dato</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Segmento:</strong></td>
+                                                <td *ngIf="NUEVOENCABEZADO.segmento">{{ NUEVOENCABEZADO?.segmento?.nombre }}</td>
+                                                <td *ngIf="!(NUEVOENCABEZADO.segmento)">sin dato</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Solicitado por:</strong></td>
+                                                <td *ngIf="NUEVOENCABEZADO.solicitado_por">{{ NUEVOENCABEZADO?.solicitado_por }}</td>
+                                                <td *ngIf="!(NUEVOENCABEZADO.solicitado_por)">sin dato</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>OT / SDI:</strong></td>
+                                                <td *ngIf="NUEVOENCABEZADO.ot">{{ NUEVOENCABEZADO?.ot }}</td>
+                                                <td *ngIf="!(NUEVOENCABEZADO.ot)">sin dato</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Supervisor pelom Ing.:</strong></td>
+                                                <td *ngIf="NUEVOENCABEZADO.supervisor_pelom">{{ NUEVOENCABEZADO?.supervisor_pelom?.supervisor }}</td>
+                                                <td *ngIf="!(NUEVOENCABEZADO.supervisor_pelom)">sin dato</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Cordinador:</strong></td>
+                                                <td *ngIf="NUEVOENCABEZADO.coordinador">{{ NUEVOENCABEZADO?.coordinador?.nombre }}</td>
+                                                <td *ngIf="!(NUEVOENCABEZADO.coordinador)">sin dato</td>
+                                            </tr>
+                                        </table>
+
+                                    </td>
+                                    
+                                    <td>
+
+                                        <table class="tabla_cabecera" style="font-size:9px;" >
+                                            <tr>
+                                                <td style="width:30%;" ><strong>Comuna:</strong></td>
+                                                <td *ngIf="NUEVOENCABEZADO.comuna">{{ NUEVOENCABEZADO?.comuna?.nombre }}</td>
+                                                <td *ngIf="!(NUEVOENCABEZADO.comuna)">sin dato</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Dirección:</strong></td>
+                                                <td *ngIf="NUEVOENCABEZADO.direccion">{{ NUEVOENCABEZADO?.direccion }}</td>
+                                                <td *ngIf="!(NUEVOENCABEZADO.direccion)">sin dato</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>N° de Flexiapp:</strong></td>
+                                                <td *ngIf="NUEVOENCABEZADO.flexiapp">{{ NUEVOENCABEZADO?.flexiapp }}</td>
+                                                <td *ngIf="!(NUEVOENCABEZADO.flexiapp)">sin dato</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Fecha ejecución:</strong></td>
+                                                <td *ngIf="NUEVOENCABEZADO.fecha_ejecucion">{{ NUEVOENCABEZADO?.fecha_ejecucion }}</td>
+                                                <td *ngIf="!(NUEVOENCABEZADO.fecha_ejecucion)">sin dato</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Jefe de delegación:</strong></td>
+                                                <td *ngIf="NUEVOENCABEZADO.jefe_delegacion">{{ NUEVOENCABEZADO?.jefe_delegacion }}</td>
+                                                <td *ngIf="!(NUEVOENCABEZADO.jefe_delegacion)">sin dato</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Jefe de Faena:</strong></td>
+                                                <td *ngIf="NUEVOENCABEZADO.jefe_faena">{{ NUEVOENCABEZADO?.jefe_faena?.nombre }}</td>
+                                                <td *ngIf="!(NUEVOENCABEZADO.jefe_faena)">sin dato</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Codigo Pelom Ing.:</strong></td>
+                                                <td *ngIf="NUEVOENCABEZADO.codigo_pelom">{{ NUEVOENCABEZADO?.codigo_pelom }}</td>
+                                                <td *ngIf="!(NUEVOENCABEZADO.codigo_pelom)">sin dato</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Nombre de Obra:</strong></td>
+                                                <td *ngIf="NUEVOENCABEZADO.nombre_obra">{{ NUEVOENCABEZADO?.nombre_obra }}</td>
+                                                <td *ngIf="!(NUEVOENCABEZADO.nombre_obra)">sin dato</td>
+                                            </tr>
+                                        </table>
+
+                                    </td>
+                                    </tr>
+                                    </table>
+
+                                </div>
+
+                                <div class="col-fixed" style="width:5%">
+                                </div>
+                            </div>
+
+                            <hr>
+                            
+                            <div class="grid">
+                                <div class="col-fixed" style="width:1%">
+                                </div>
+                                <div class="col">
+                                    <table border="1" >
+                                        <thead>
+                                            <tr>
+                                                <th style="text-align:center;font-size:9px;padding:0%;">Clase</th>
+                                                <th style="text-align:center;font-size:9px;padding:0%;">Tipo</th>
+                                                <th style="text-align:center;font-size:9px;padding:0%;width:35%;">Actividad</th>
+                                                <th style="text-align:center;font-size:9px;padding:0%;">Unidad</th>
+                                                <th style="text-align:center;font-size:9px;padding:0%;">Cantidad</th>
+                                                <th style="text-align:center;font-size:9px;padding:0%;">Unitario</th>
+                                                <th style="text-align:center;font-size:9px;padding:0%;">Total</th>
+                                                <th style="text-align:center;font-size:9px;padding:0%;">Unitario</th>
+                                                <th style="text-align:center;font-size:9px;padding:0%;">Recargos</th>
+                                                <th style="text-align:center;font-size:9px;padding:0%;">Total</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <ng-container *ngIf="LISTA_ACTIVIDADES && LISTA_ACTIVIDADES.length > 0; else sinRegistros_0">
+                                                <tr *ngFor="let item of LISTA_ACTIVIDADES">
+                                                    <td style="text-align:center;font-size:9px;padding:0%;">{{ item.clase }}</td>
+                                                    <td style="text-align:left;font-size:9px;padding-left:0.5%;">{{ item.tipo }}</td>
+                                                    <td style="text-align:left;font-size:9px;padding-left:0.5%;">{{ item.actividad }}</td>
+                                                    <td style="text-align:center;font-size:9px;padding:0%;">{{ item.unidad }}</td>
+                                                    <td style="font-size:9px;padding-right:1%;">{{ item.cantidad }}</td>
+                                                    <td style="font-size:9px;padding-right:1%;">{{ item.unitario }}</td>
+                                                    <td style="font-size:9px;padding-right:1%;">
+                                                        {{ (item.total !== null ? item.total : '0') | currency:'CLP':'$':'1.0-0' | commaToDot }}
+                                                    </td>
+                                                    <td style="font-size:9px;padding-right:1%;">
+                                                        {{ (item.unitario_pesos !== null ? item.unitario_pesos : '0') | currency:'CLP':'$':'1.0-0' | commaToDot }}
+                                                    </td>
+                                                    <td style="text-align:center;font-size:9px;padding:0%;">{{ item.recargos }}</td>
+                                                    <td style="font-size:9px;padding-right:1%;">
+                                                        {{ (item.total_pesos !== null ? item.total_pesos : '0') | currency:'CLP':'$':'1.0-0' | commaToDot }}
+                                                    </td>
+                                                </tr>
+                                            </ng-container>
+                                            <ng-template #sinRegistros_0>
+                                                <tr>
+                                                    <td colspan="10" style="text-align: center;">Sin registros</td>
+                                                </tr>
+                                            </ng-template>
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <td colspan="9" style="padding-right:1%;font-size:9px;" > <strong> Sub Total </strong></td>
+                                                <td style="font-size:9px;padding-right:1%;" > {{ (TOTALESESTADOPAGO?.subtotal1 !== null ? TOTALESESTADOPAGO?.subtotal1 : '0') | currency:'CLP':'$':'1.0-0' | commaToDot }} </td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                                <div class="col-fixed" style="width:1%">
+                                </div>
+                            </div>
+
+                            <hr>
+                            
+                            <div class="grid">
+                                <div class="col-fixed" style="width:1%">
+                                </div>
+                                <div class="col">
+                                    <table border="1" >
+                                        <thead>
+                                            <tr>
+                                                <th style="text-align:center;font-size:9px;padding:0%;">Clase</th>
+                                                <th style="text-align:center;font-size:9px;padding:0%;">Tipo</th>
+                                                <th style="text-align:center;font-size:9px;padding:0%;width:35%;"> Actividad Adicional</th>
+                                                <th style="text-align:center;font-size:9px;padding:0%;">Unidad</th>
+                                                <th style="text-align:center;font-size:9px;padding:0%;">Cantidad</th>
+                                                <th style="text-align:center;font-size:9px;padding:0%;">Unitario</th>
+                                                <th style="text-align:center;font-size:9px;padding:0%;">Total</th>
+                                                <th style="text-align:center;font-size:9px;padding:0%;">Unitario</th>
+                                                <th style="text-align:center;font-size:9px;padding:0%;">Recargos</th>
+                                                <th style="text-align:center;font-size:9px;padding:0%;">Total</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <ng-container *ngIf="LISTA_ACTIVIDADES_ADICIONALES && LISTA_ACTIVIDADES_ADICIONALES.length > 0; else sinRegistros_1">
+                                                <tr *ngFor="let item of LISTA_ACTIVIDADES_ADICIONALES">
+                                                    <td style="text-align:center;font-size:9px;padding:0%;">{{ item.clase }}</td>
+                                                    <td style="text-align:left;font-size:9px;padding-left:0.5%;">{{ item.tipo }}</td>
+                                                    <td style="text-align:left;font-size:9px;padding-left:0.5%;">{{ item.actividad }}</td>
+                                                    <td style="text-align:center;font-size:9px;padding:0%;">{{ item.unidad }}</td>
+                                                    <td style="font-size:9px;padding-right:1%;">{{ item.cantidad }}</td>
+                                                    <td style="font-size:9px;padding-right:1%;">{{ item.unitario }}</td>
+                                                    <td style="font-size:9px;padding-right:1%;">
+                                                        {{ (item.total !== null ? item.total : '0') | currency:'CLP':'$':'1.0-0' | commaToDot }}
+                                                    </td>
+                                                    <td style="font-size:9px;padding-right:1%;">
+                                                        {{ (item.unitario_pesos !== null ? item.unitario_pesos : '0') | currency:'CLP':'$':'1.0-0' | commaToDot }}
+                                                    </td>
+                                                    <td style="text-align:center;font-size:9px;padding:0%;">{{ item.recargos }}</td>
+                                                    <td style="font-size:9px;padding-right:1%;">
+                                                        {{ (item.total_pesos !== null ? item.total_pesos : '0') | currency:'CLP':'$':'1.0-0' | commaToDot }}
+                                                    </td>
+                                                </tr>
+                                            </ng-container>
+                                            <ng-template #sinRegistros_1>
+                                                <tr>
+                                                    <td colspan="10" style="text-align: center;">Sin registros</td>
+                                                </tr>
+                                            </ng-template>
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <td colspan="9" style="padding-right:1%;font-size:9px;" > <strong> Sub Total </strong></td>
+                                                <td style="font-size:9px;padding-right:1%;" > {{ (TOTALESESTADOPAGO?.subtotal2 !== null ? TOTALESESTADOPAGO?.subtotal2 : '0') | currency:'CLP':'$':'1.0-0' | commaToDot }} </td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                                <div class="col-fixed" style="width:1%">
+                                </div>
+                            </div>
+
+                            <hr>
+                            
+                            <div class="grid">
+                                <div class="col-fixed" style="width:1%">
+                                </div>
+                                <div class="col">
+                                    <table border="1" >
+                                        <thead>
+                                            <tr>
+                                                <th style="text-align:center;font-size:9px;padding:0%;">Clase</th>
+                                                <th style="text-align:center;font-size:9px;padding:0%;">Tipo</th>
+                                                <th style="text-align:center;font-size:9px;padding:0%;width:35%;">Actividades en horarios extraordinarios</th>
+                                                <th style="text-align:center;font-size:9px;padding:0%;">Unidad</th>
+                                                <th style="text-align:center;font-size:9px;padding:0%;">Cantidad</th>
+                                                <th style="text-align:center;font-size:9px;padding:0%;">Unitario</th>
+                                                <th style="text-align:center;font-size:9px;padding:0%;">Total</th>
+                                                <th style="text-align:center;font-size:9px;padding:0%;">Unitario</th>
+                                                <th style="text-align:center;font-size:9px;padding:0%;">Recargos</th>
+                                                <th style="text-align:center;font-size:9px;padding:0%;">Total</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <ng-container *ngIf="LISTA_ACTIVIDADES_CONHORASEXTRA && LISTA_ACTIVIDADES_CONHORASEXTRA.length > 0; else sinRegistros_2">
+                                                <tr *ngFor="let item of LISTA_ACTIVIDADES_CONHORASEXTRA">
+                                                    <td style="text-align:center;font-size:9px;padding:0%;">{{ item.clase }}</td>
+                                                    <td style="text-align:left;font-size:9px;padding-left:0.5%;">{{ item.tipo }}</td>
+                                                    <td style="text-align:left;font-size:9px;padding-left:0.5%;">{{ item.actividad }}</td>
+                                                    <td style="text-align:center;font-size:9px;padding:0%;">{{ item.unidad }}</td>
+                                                    <td style="font-size:9px;padding-right:1%;">{{ item.cantidad }}</td>
+                                                    <td style="font-size:9px;padding-right:1%;">
+                                                        {{ item.unitario }}
+                                                    </td>
+                                                    <td style="font-size:9px;padding-right:1%;">
+                                                        {{ (item.total !== null ? item.total : '0') | currency:'CLP':'$':'1.0-0' | commaToDot }}
+                                                    </td>
+                                                    <td style="font-size:9px;padding-right:1%;">
+                                                        {{ (item.unitario_pesos !== null ? item.unitario_pesos : '0') | currency:'CLP':'$':'1.0-0' | commaToDot }}
+                                                    </td>
+                                                    <td style="text-align:center;font-size:9px;padding:0%;">{{ item.recargos }}</td>
+                                                    <td style="font-size:9px;padding-right:1%;">
+                                                        {{ (item.total_pesos !== null ? item.total_pesos : '0') | currency:'CLP':'$':'1.0-0' | commaToDot }}
+                                                    </td>
+                                                </tr>
+                                            </ng-container>
+                                            <ng-template #sinRegistros_2>
+                                                <tr>
+                                                    <td colspan="10" style="text-align: center;">Sin registros</td>
+                                                </tr>
+                                            </ng-template>
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <td colspan="9" style="padding-right:1%;font-size:9px;" > <strong> Sub Total </strong></td>
+                                                <td style="font-size:9px;padding-right:1%;" > {{ (TOTALESESTADOPAGO?.subtotal3 !== null ? TOTALESESTADOPAGO?.subtotal3 : '0') | currency:'CLP':'$':'1.0-0' | commaToDot }} </td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                                <div class="col-fixed" style="width:1%">
+                                </div>
+                            </div>
+
+                            <hr>
+                            
+                            <div class="grid grid_pdf_avances">
+                                <div class="col-fixed col_pdf_avances" >     
+                                </div>
+                                <div class="col">
+
+                                    <table border="1" class="estiloTotalesEstadoDePago_3" >
+                                        <thead>
+                                            <tr>
+                                                <th colspan="3" style="text-align:center;font-size:9px;padding:0%;">Avances de estado de pago</th>
+                                            </tr>
+                                            <tr>
+                                                <th style="text-align:center;font-size:9px;padding:0%;">Código Pelom</th>
+                                                <th style="text-align:center;font-size:9px;padding:0%;">Fecha</th>
+                                                <th style="text-align:center;font-size:9px;padding:0%;">Monto</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+
+                                            <ng-container *ngIf="AVANCESESTADOPAGO  && AVANCESESTADOPAGO .length > 0; else sinRegistros_3">
+                                                <tr *ngFor="let item of AVANCESESTADOPAGO ">
+                                                    <td style="text-align:center;font-size:9px;padding:0%;">{{ item.codigo_pelom }}</td>
+                                                    <td style="text-align:center;font-size:9px;padding:0%;">{{ item.fecha_avance }}</td>
+                                                    <td style="font-size:9px;padding-right:10%;">
+                                                        {{ (item.monto !== null ? item.monto : '0') | currency:'CLP':'$':'1.0-0' | commaToDot }}
+                                                    </td>
+                                                </tr>
+                                            </ng-container>
+                                            <ng-template #sinRegistros_3>
+                                                <tr>
+                                                    <td colspan="10" style="text-align: center;">Sin registros</td>
+                                                </tr>
+                                            </ng-template>
+
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                               <td colspan="2" style="padding-right:1%;font-size:9px;" ><strong>Total</strong></td>
+                                               <td style="font-size:9px;padding-right:10%;"  *ngIf="TOTALESESTADOPAGO" > {{ (TOTALESESTADOPAGO?.descuentoAvance !== null ? TOTALESESTADOPAGO?.descuentoAvance : '0') | currency:'CLP':'$':'1.0-0' | commaToDot }} </td>
+                                               <td *ngIf="!(TOTALESESTADOPAGO)">sin dato</td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+
+                                <div class="col-fixed">
+                                </div>
+
+                            </div>
+
+                            <hr>
+
+                            <div class="grid grid_pdf_total">
+
+                                <div class="col-fixed col-fixed_pdf_total"> 
+                                </div>
+
+                                <div class="col col_pdf_total">
+
+                                    <table class="estiloTotalesEstadoDePago_1 estiloTotalesEstadoDePago_2" border="1">
+                                        <tr>
+                                            <th colspan="2" style="text-align:center;font-size:9px;padding:0%;">Totales Estados de Pago</th>
+                                        </tr>
+                                        <tr>
+                                            <td style="text-align:left;font-size:9px;padding-left:10%;" ><strong>Subtotal 1:</strong></td>
+                                            <td style="font-size:9px;padding-right:10%;" class="aling-dinero" *ngIf="TOTALESESTADOPAGO">{{ (TOTALESESTADOPAGO?.subtotal1 !== null ? TOTALESESTADOPAGO?.subtotal1 : '0') | currency:'CLP':'$':'1.0-0' | commaToDot }} </td>
+                                            <td *ngIf="!(TOTALESESTADOPAGO)">sin dato</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="text-align:left;font-size:9px;padding-left:10%;" ><strong>Subtotal 2:</strong></td>
+                                            <td style="font-size:9px;padding-right:10%;" class="aling-dinero" *ngIf="TOTALESESTADOPAGO">{{ (TOTALESESTADOPAGO?.subtotal2 !== null ? TOTALESESTADOPAGO?.subtotal2 : '0') | currency:'CLP':'$':'1.0-0' | commaToDot }} </td>
+                                            <td *ngIf="!(TOTALESESTADOPAGO)">sin dato</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="text-align:left;font-size:9px;padding-left:10%;" ><strong>Subtotal 3:</strong></td>
+                                            <td style="font-size:9px;padding-right:10%;" class="aling-dinero" *ngIf="TOTALESESTADOPAGO">{{ (TOTALESESTADOPAGO?.subtotal3 !== null ? TOTALESESTADOPAGO?.subtotal3 : '0') | currency:'CLP':'$':'1.0-0' | commaToDot }} </td>
+                                            <td *ngIf="!(TOTALESESTADOPAGO)">sin dato</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="text-align:left;font-size:9px;padding-left:10%;" ><strong>Valor Neto:</strong></td>
+                                            <td style="font-size:9px;padding-right:10%;" class="aling-dinero" *ngIf="TOTALESESTADOPAGO">{{ (TOTALESESTADOPAGO?.valorNeto !== null ? TOTALESESTADOPAGO?.valorNeto : '0') | currency:'CLP':'$':'1.0-0' | commaToDot }} </td>
+                                            <td *ngIf="!(TOTALESESTADOPAGO)">sin dato</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="text-align:left;font-size:9px;padding-left:10%;" ><strong>Descuento avances de pago (sin iva):</strong></td>
+                                            <td style="font-size:9px;padding-right:10%;" class="aling-dinero" *ngIf="TOTALESESTADOPAGO">{{ (TOTALESESTADOPAGO?.descuentoAvance !== null ? TOTALESESTADOPAGO?.descuentoAvance : '0') | currency:'CLP':'$':'1.0-0' | commaToDot }} </td>
+                                            <td *ngIf="!(TOTALESESTADOPAGO)">sin dato</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="text-align:left;font-size:9px;padding-left:10%;" ><strong>Total Neto:</strong></td>
+                                            <td style="font-size:9px;padding-right:10%;" class="aling-dinero" *ngIf="TOTALESESTADOPAGO">{{ (TOTALESESTADOPAGO?.valorNeto !== null ? TOTALESESTADOPAGO?.totalNeto : '0') | currency:'CLP':'$':'1.0-0' | commaToDot }} </td>
+                                            <td *ngIf="!(TOTALESESTADOPAGO)">sin dato</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="text-align:left;font-size:9px;padding-left:10%;" ><strong>IVA:</strong></td>
+                                            <td style="font-size:9px;padding-right:10%;" class="aling-dinero" *ngIf="TOTALESESTADOPAGO">{{ (TOTALESESTADOPAGO?.iva !== null ? TOTALESESTADOPAGO?.iva : '0') | currency:'CLP':'$':'1.0-0' | commaToDot }} </td>
+                                            <td *ngIf="!(TOTALESESTADOPAGO)">sin dato</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="text-align:left;font-size:9px;padding-left:10%;" ><strong>Total estado de pago:</strong></td>
+                                            <td style="font-size:9px;padding-right:10%;" class="aling-dinero" *ngIf="TOTALESESTADOPAGO">{{ (TOTALESESTADOPAGO?.totalNeto !== null ? TOTALESESTADOPAGO?.total : '0') | currency:'CLP':'$':'1.0-0' | commaToDot }} </td>
+                                            <td *ngIf="!(TOTALESESTADOPAGO)">sin dato</td>
+                                        </tr>
+                                    </table>
+
+                                </div>
+
+                                <div class="col-fixed col-fixed_pdf_total">
+                                </div>
+                                
+                            </div>
+
+                            <hr>
+                            
+                            <!-- Al final del contenido del informe -->
+                            <div class="footer">
+                                <div class="grid grid_footer" >
+                                    <div class="col col_footer">
+                                        <p>Nombre: _______________________</p>
+                                        <p>R.U.N: _______________________</p>
+                                        <p>Firma: _______________________</p>
+                                    </div>
+                                    <div class="col col_footer">
+                                        <p>Nombre: _______________________</p>
+                                        <p>R.U.N: _______________________</p>
+                                        <p>Firma: _______________________</p>
+                                    </div>
+                                    <div class="col col_footer">
+                                        <p>Nombre: _______________________</p>
+                                        <p>R.U.N: _______________________</p>
+                                        <p>Firma: _______________________</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    
+                    </div>
+                </div>
+                <div class="col-fixed" style="width:10%">
+                    <div class="box">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </ng-template>
+
+
+</p-dialog>
